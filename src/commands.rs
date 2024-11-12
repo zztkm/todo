@@ -12,15 +12,46 @@ pub struct Cli {
 
 #[derive(Subcommand)]
 pub enum Commands {
+    /// Create a new todo.
+    ///
+    /// This command creates a new todo.
+    ///
+    /// Example:
+    /// $ todo create "Buy milk" --description "Buy 2 milk" --due-date "2024-12-31"
+    Add(AddTodoArgs),
+
     /// List todos.
     ///
     /// This command lists all todos.
-    /// --filter: Filter todos by status.
-    /// --sort: Sort todos by status.
-    /// --reverse: Reverse the order of the todos.
-    /// --limit: Limit the number of todos.
-    /// --output: Output format.
     List(ListArgs),
+}
+
+#[derive(Args)]
+pub struct AddTodoArgs {
+    /// Title of the todo (required).
+    pub title: String,
+
+    /// Start date of the todo (optional).
+    ///
+    /// Example: "2024-12-31"
+    #[arg(short, long)]
+    pub date: Option<String>,
+
+    /// Start time of the todo (optional).
+    ///
+    /// Example: "14:30:00"
+    // TODO(zztkm): time は hh:mm もサポートする
+    #[arg(short, long)]
+    pub time: Option<String>,
+
+    /// Description of the todo (optional).
+    #[arg(long)]
+    // date と頭文字が被っているため、short オプションを指定しない
+    pub description: Option<String>,
+
+    /// URL of the todo (optional).
+    #[arg(short, long)]
+    pub url: Option<String>,
 }
 
 #[derive(Args)]
