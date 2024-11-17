@@ -293,6 +293,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "oktodo"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "clap",
+ "home",
+ "rusqlite",
+]
+
+[[package]]
 name = "once_cell"
 version = "1.20.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -363,16 +373,6 @@ dependencies = [
  "proc-macro2",
  "quote",
  "unicode-ident",
-]
-
-[[package]]
-name = "todo"
-version = "0.1.0"
-dependencies = [
- "chrono",
- "clap",
- "home",
- "rusqlite",
 ]
 
 [[package]]
