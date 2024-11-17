@@ -27,8 +27,17 @@ impl Cli {
                     return;
                 }
                 for todo in todos {
-                    // いい感じなフォーマットで出力する
-                    println!("{}", todo);
+                    let done = if todo.done == 0 { " " } else { "x" };
+                    println!(
+                        "[{}] {}, start: {}, description: {}, url: {}",
+                        done,
+                        todo.title,
+                        todo.start_date
+                            .map(|d| d.format("%Y-%m-%d").to_string())
+                            .unwrap_or("".to_string()),
+                        todo.description.unwrap_or("".to_string()),
+                        todo.url.unwrap_or("".to_string())
+                    );
                 }
             }
         }
