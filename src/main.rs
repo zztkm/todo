@@ -1,12 +1,7 @@
-mod app_dir;
-mod commands;
-mod db;
-mod util;
-
 use clap::Parser;
-use commands::{AddTodoArgs, Cli, Commands, ListArgs};
-use db::Todo;
-use util::parse_ymd_hms;
+use todo::commands::{AddTodoArgs, Cli, Commands, ListArgs};
+use todo::db;
+use todo::util;
 
 use chrono::Utc;
 
@@ -24,7 +19,7 @@ fn main() {
 }
 
 fn add(args: &AddTodoArgs) {
-    let db_path = app_dir::get_app_db_path();
+    let db_path = util::get_app_db_path();
     let conn = db::open_db(&db_path).unwrap();
 
     let current_time = Utc::now();
@@ -35,15 +30,15 @@ fn add(args: &AddTodoArgs) {
     let start_date = if args.date.is_some() && args.time.is_some() {
         let date = args.date.as_ref().unwrap();
         let time = args.time.as_ref().unwrap();
-        parse_ymd_hms(date, time)
+        util::parse_ymd_hms(date, time)
     } else if args.date.is_some() && args.time.is_none() {
         let date = args.date.as_ref().unwrap();
-        let time = "00:00:00";
-        parse_ymd_hms(date, time)
+        let time = "00:00:00"; // 時刻が指定されていない場合は 00:00:00 固定
+        util::parse_ymd_hms(date, time)
     } else if args.date.is_none() && args.time.is_some() {
         let date = &current_time.format("%Y-%m-%d").to_string();
         let time = args.time.as_ref().unwrap();
-        parse_ymd_hms(date, time)
+        util::parse_ymd_hms(date, time)
     } else {
         // 両方なしの場合は Todo 初期化時に無視されるが、都合上 current_time を返す
         current_time
@@ -53,7 +48,7 @@ fn add(args: &AddTodoArgs) {
     // None はつまり指定されていないことを意味する
     // これは 例えば、start_date が 2024-12-31 で start_time が指定されていない場合、
     // 保持する DateTime は 2024-12-31 00:00:00 となるが、クライアントには開始日を 2024-12-31、開始時刻を設定なしとして表示するためである
-    let todo = Todo {
+    let todo = db::Todo {
         id: 0,
         created_at: current_time,
         updated_at: current_time,
@@ -69,7 +64,7 @@ fn add(args: &AddTodoArgs) {
 }
 
 fn list(args: &ListArgs) {
-    let db_path = app_dir::get_app_db_path();
+    let db_path = util::get_app_db_path();
     let conn = db::open_db(&db_path).unwrap();
 
     let todos = db::list(&conn).unwrap();

@@ -34,7 +34,8 @@ pub struct AddTodoArgs {
     /// Start date of the todo (optional).
     ///
     /// Example: "2024-12-31"
-    #[arg(short, long)]
+    #[arg(long)]
+    // description と頭文字が被っているため、short オプションを指定しない
     pub date: Option<String>,
 
     /// Start time of the todo (optional).
@@ -45,8 +46,7 @@ pub struct AddTodoArgs {
     pub time: Option<String>,
 
     /// Description of the todo (optional).
-    #[arg(long)]
-    // date と頭文字が被っているため、short オプションを指定しない
+    #[arg(short, long)]
     pub description: Option<String>,
 
     /// URL of the todo (optional).
