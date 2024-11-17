@@ -1,6 +1,6 @@
 pub mod db;
 pub mod todo;
-pub mod util;
+mod util;
 
 use clap::Args;
 

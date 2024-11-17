@@ -1,6 +1,4 @@
 use chrono::prelude::*;
-use std::fs;
-use std::path::PathBuf;
 
 pub fn parse_ymd_hms(date: &str, time: &str) -> DateTime<Utc> {
     let (year, month, day) = {
@@ -46,30 +44,20 @@ pub fn parse_start_date_time(date: Option<String>, time: Option<String>) -> Date
     start_date
 }
 
-fn get_app_dir() -> PathBuf {
-    let mut path = match home::home_dir() {
-        Some(path) => path,
-        None => {
-            println!("Could not find home directory.");
-            return PathBuf::new();
-        }
-    };
-    path.push(".todo");
-    if !path.exists() {
-        match fs::create_dir(&path) {
-            Ok(_) => (),
-            Err(e) => {
-                println!("Could not create directory: {:?}", e);
-                return PathBuf::new();
-            }
-        }
-    }
-    path
-}
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-/// Get the path to the todo database (sqlite).
-pub fn get_app_db_path() -> PathBuf {
-    let mut path = get_app_dir();
-    path.push("todo.db");
-    path
+    #[test]
+    fn test_parse_start_date_time() {
+        let date = Some("2024-12-31".to_string());
+        let time = Some("12:34:56".to_string());
+        let dt = parse_start_date_time(date, time);
+        assert_eq!(dt.year(), 2024);
+        assert_eq!(dt.month(), 12);
+        assert_eq!(dt.day(), 31);
+        assert_eq!(dt.hour(), 12);
+        assert_eq!(dt.minute(), 34);
+        assert_eq!(dt.second(), 56);
+    }
 }
