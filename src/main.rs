@@ -1,8 +1,10 @@
 use clap::{Parser, Subcommand};
-use oktodo::db;
-use oktodo::todo;
+use rusqlite::{OpenFlags, Result};
 use std::fs;
+use std::path::Path;
 use std::path::PathBuf;
+use todo::control::TodoController;
+use todo::db;
 /// A basic example
 ///
 /// This command is a basic example of a command that does nothing.
@@ -14,7 +16,7 @@ pub struct Cli {
 }
 
 impl Cli {
-    pub fn execute(&self, contoroller: todo::TodoController) {
+    pub fn execute(&self, contoroller: TodoController) {
         match &self.command {
             Commands::Add(args) => match contoroller.add_todo(args) {
                 Ok(_) => println!("Todo created successfully."),
@@ -52,20 +54,34 @@ pub enum Commands {
     ///
     /// Example:
     /// $ todo create "Buy milk" --description "Buy 2 milk" --due-date "2024-12-31"
-    Add(oktodo::AddOptions),
+    Add(todo::AddOptions),
 
     /// List todos.
     ///
     /// This command lists all todos.
-    List(oktodo::ListOptions),
+    List(todo::ListOptions),
 }
 
 fn main() {
     // TODO(zztkm): 引数が指定されていない場合は TUI モードで起動する
-    let conn = db::open_db(&get_app_db_path()).unwrap();
-    let controller = todo::TodoController::new(conn);
+    let conn = open_db(&get_app_db_path()).unwrap();
+    let controller = TodoController::new(conn);
     let cli = Cli::parse();
     cli.execute(controller);
+}
+
+pub fn open_db(p: &Path) -> Result<rusqlite::Connection> {
+    // p のパスにデータベースファイルが存在しない場合は新規作成する
+    if !p.exists() {
+        // db ファイルが存在しない場合は初回起動とみなし、テーブルを作成する
+        let conn = rusqlite::Connection::open_with_flags(
+            p,
+            OpenFlags::SQLITE_OPEN_CREATE | OpenFlags::SQLITE_OPEN_READ_WRITE,
+        )?;
+        db::init(&conn)?;
+        return Ok(conn);
+    }
+    rusqlite::Connection::open_with_flags(p, OpenFlags::SQLITE_OPEN_READ_WRITE)
 }
 
 fn get_app_dir() -> PathBuf {

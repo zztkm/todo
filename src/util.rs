@@ -53,6 +53,7 @@ mod tests {
         let date = Some("2024-12-31".to_string());
         let time = Some("12:34:56".to_string());
         let dt = parse_start_date_time(date, time);
+
         assert_eq!(dt.year(), 2024);
         assert_eq!(dt.month(), 12);
         assert_eq!(dt.day(), 31);

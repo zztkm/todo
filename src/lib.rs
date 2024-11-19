@@ -1,5 +1,6 @@
+pub mod control;
 pub mod db;
-pub mod todo;
+pub mod model;
 mod util;
 
 use clap::Args;
