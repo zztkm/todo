@@ -1,5 +1,5 @@
 use clap::{Parser, Subcommand};
-use rusqlite::{OpenFlags, Result};
+use rusqlite::OpenFlags;
 use std::fs;
 use std::path::Path;
 use std::path::PathBuf;
@@ -64,13 +64,14 @@ pub enum Commands {
 
 fn main() {
     // TODO(zztkm): 引数が指定されていない場合は TUI モードで起動する
-    let conn = open_db(&get_app_db_path()).unwrap();
+    let app_dir = init_app_dir().unwrap();
+    let conn = open_db(&app_dir.join(".todo")).unwrap();
     let controller = TodoController::new(conn);
     let cli = Cli::parse();
     cli.execute(controller);
 }
 
-pub fn open_db(p: &Path) -> Result<rusqlite::Connection> {
+pub fn open_db(p: &Path) -> rusqlite::Result<rusqlite::Connection> {
     // p のパスにデータベースファイルが存在しない場合は新規作成する
     if !p.exists() {
         // db ファイルが存在しない場合は初回起動とみなし、テーブルを作成する
@@ -84,30 +85,24 @@ pub fn open_db(p: &Path) -> Result<rusqlite::Connection> {
     rusqlite::Connection::open_with_flags(p, OpenFlags::SQLITE_OPEN_READ_WRITE)
 }
 
-fn get_app_dir() -> PathBuf {
-    let mut path = match home::home_dir() {
-        Some(path) => path,
-        None => {
-            println!("Could not find home directory.");
-            return PathBuf::new();
-        }
-    };
-    path.push(".todo");
+/// Get the path to the todo directory.
+/// home ディレクトリを取得できなかった場合はエラーを返す
+fn get_app_dir_path() -> Result<PathBuf, String> {
+    match home::home_dir() {
+        Some(path) => Ok(path.join(".todo")),
+        _ => Err("Could not find home directory.".to_string()),
+    }
+}
+
+fn init_app_dir() -> Result<PathBuf, String> {
+    let path = get_app_dir_path()?;
     if !path.exists() {
         match fs::create_dir(&path) {
             Ok(_) => (),
             Err(e) => {
-                println!("Could not create directory: {:?}", e);
-                return PathBuf::new();
+                return Err(format!("Could not create directory: {:?}", e));
             }
         }
     }
-    path
-}
-
-/// Get the path to the todo database (sqlite).
-pub fn get_app_db_path() -> PathBuf {
-    let mut path = get_app_dir();
-    path.push("todo.db");
-    path
+    Ok(path)
 }

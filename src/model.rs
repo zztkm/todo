@@ -1,8 +1,4 @@
-use crate::model;
-use crate::util;
-use crate::AddOptions;
 use chrono::{DateTime, Utc};
-use rusqlite::Result;
 
 pub struct Todo {
     pub id: i64,
