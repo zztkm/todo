@@ -22,6 +22,14 @@ impl Cli {
                 Ok(_) => println!("Todo created successfully."),
                 Err(e) => eprintln!("Failed to create a todo: {}", e),
             },
+            Commands::Done(args) => match contoroller.done(args) {
+                Ok(_) => println!("Todo marked as done."),
+                Err(e) => eprintln!("Failed to mark a todo as done: {}", e),
+            },
+            Commands::Undone(args) => match contoroller.undone(args) {
+                Ok(_) => println!("Todo marked as undone."),
+                Err(e) => eprintln!("Failed to mark a todo as undone: {}", e),
+            },
             Commands::List(_) => {
                 let todos = contoroller.list_todos().unwrap();
                 if todos.is_empty() {
@@ -31,14 +39,14 @@ impl Cli {
                 for todo in todos {
                     let done = if todo.done == 0 { " " } else { "x" };
                     println!(
-                        "[{}] {}, start: {}, description: {}, url: {}",
+                        "[{}] {}, start: {}, url: {}, uuid: {}",
                         done,
                         todo.title,
                         todo.start_date
                             .map(|d| d.format("%Y-%m-%d").to_string())
                             .unwrap_or("".to_string()),
-                        todo.description.unwrap_or("".to_string()),
-                        todo.url.unwrap_or("".to_string())
+                        todo.url.unwrap_or("".to_string()),
+                        todo.uuid
                     );
                 }
             }
@@ -55,6 +63,12 @@ pub enum Commands {
     /// Example:
     /// $ todo create "Buy milk" --description "Buy 2 milk" --due-date "2024-12-31"
     Add(todo::AddOptions),
+
+    /// Mark a todo as done.
+    Done(todo::UuidOptions),
+
+    /// Mark a todo as undone.
+    Undone(todo::UuidOptions),
 
     /// List todos.
     ///

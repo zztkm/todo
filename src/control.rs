@@ -1,8 +1,9 @@
 use crate::model::Todo;
 use crate::util;
-use crate::AddOptions;
+use crate::{AddOptions, UuidOptions};
 use chrono::{DateTime, Utc};
 use rusqlite::Result;
+use uuid::Uuid;
 
 pub struct TodoController {
     conn: rusqlite::Connection,
@@ -19,6 +20,7 @@ impl TodoController {
             util::parse_start_date_time(options.date.clone(), options.time.clone());
         let todo = Todo {
             id: 0, // 0 を入れているが、実際には autoincrement で自動採番される
+            uuid: Uuid::new_v4(),
             created_at: current_time,
             updated_at: current_time,
             done: 0,
@@ -29,9 +31,10 @@ impl TodoController {
             url: options.url.clone(),
         };
         self.conn.execute(
-            "INSERT INTO todos (created_at, updated_at, done, title, start_date, start_time, description, url)
-            VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)",
+            "INSERT INTO todos (uuid, created_at, updated_at, done, title, start_date, start_time, description, url)
+            VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)",
             (
+                todo.uuid.to_string(), // ハイフンありの文字列に変換
                 todo.created_at.to_rfc3339(),
                 todo.updated_at.to_rfc3339(),
                 todo.done,
@@ -45,10 +48,29 @@ impl TodoController {
         Ok(())
     }
 
+    pub fn done(&self, options: &UuidOptions) -> Result<()> {
+        // uuid 文字列は - ありを期待しているが 仮に - なしの文字列が来ても問題ないように Uuid に変換している
+        let uuid = Uuid::parse_str(&options.uuid).unwrap();
+        self.conn.execute(
+            "UPDATE todos SET done = 1 WHERE uuid = ?1",
+            [uuid.to_string()],
+        )?;
+        Ok(())
+    }
+
+    pub fn undone(&self, options: &UuidOptions) -> Result<()> {
+        let uuid = Uuid::parse_str(&options.uuid).unwrap();
+        self.conn.execute(
+            "UPDATE todos SET done = 0 WHERE uuid = ?1",
+            [uuid.to_string()],
+        )?;
+        Ok(())
+    }
+
     pub fn list_todos(&self) -> Result<Vec<Todo>> {
         // TODO(zztkm): 条件による絞り込みを実装する
         let mut stmt = self.conn.prepare(
-            "SELECT id, created_at, updated_at, done, title, start_date, start_time, description, url
+            "SELECT id, created_at, updated_at, done, title, start_date, start_time, description, url, uuid
         FROM todos ORDER BY created_at DESC",
         )?;
         let rows = stmt.query_map([], |row| {
@@ -58,6 +80,7 @@ impl TodoController {
             let updated_at_str: String = row.get(2)?;
             let start_date_str: Option<String> = row.get(5)?;
             let start_time_str: Option<String> = row.get(6)?;
+            let uuid_str: String = row.get(9)?;
 
             Ok(Todo {
                 id: row.get(0)?,
@@ -81,6 +104,7 @@ impl TodoController {
                 }),
                 description: row.get(7)?,
                 url: row.get(8)?,
+                uuid: Uuid::parse_str(&uuid_str).unwrap(),
             })
         })?;
         let mut todos = Vec::new();

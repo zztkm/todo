@@ -4,6 +4,7 @@ pub fn init(conn: &rusqlite::Connection) -> Result<()> {
     conn.execute(
         "CREATE TABLE todos (
             id INTEGER PRIMARY KEY,
+            uuid TEXT NOT NULL,
             created_at TEXT NOT NULL,
             updated_at TEXT NOT NULL,
             done INTEGER NOT NULL,

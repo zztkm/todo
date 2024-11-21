@@ -55,3 +55,9 @@ pub struct ListOptions {
     #[arg(short, long)]
     pub output: Option<String>,
 }
+
+#[derive(Args)]
+pub struct UuidOptions {
+    /// ID of the todo to mark as done.
+    pub uuid: String,
+}

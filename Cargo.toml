@@ -9,3 +9,4 @@ clap = { version = "4.5.20", features = ["derive"] }
 home = "0.5.9"
 rstest = "0.23.0"
 rusqlite = { version = "0.32.1", features = ["bundled"] }
+uuid = { version = "1.11.0", features = ["v4"] }
