@@ -5,9 +5,8 @@ use std::path::Path;
 use std::path::PathBuf;
 use todo::control::TodoController;
 use todo::db;
-/// A basic example
-///
-/// This command is a basic example of a command that does nothing.
+
+/// ToDo app CLI
 #[derive(Parser)]
 #[command(version, about, long_about)]
 pub struct Cli {
