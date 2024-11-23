@@ -78,7 +78,7 @@ pub enum Commands {
 fn main() {
     // TODO(zztkm): 引数が指定されていない場合は TUI モードで起動する
     let app_dir = init_app_dir().unwrap();
-    let conn = open_db(&app_dir.join(".todo")).unwrap();
+    let conn = open_db(&app_dir.join("todo.db")).unwrap();
     let controller = TodoController::new(conn);
     let cli = Cli::parse();
     cli.execute(controller);
