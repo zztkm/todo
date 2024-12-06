@@ -71,7 +71,7 @@ impl TodoController {
         // TODO(zztkm): 条件による絞り込みを実装する
         let mut stmt = self.conn.prepare(
             "SELECT id, created_at, updated_at, done, title, start_date, start_time, description, url, uuid
-        FROM todos ORDER BY created_at asc",
+        FROM todos WHERE done = 0 ORDER BY created_at asc",
         )?;
         let rows = stmt.query_map([], |row| {
             // Index 1, 2 は String として row.get し、Local.datetime_from_str で DateTime に変換する
