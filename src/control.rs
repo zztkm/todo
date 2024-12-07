@@ -1,6 +1,6 @@
 use crate::model::Todo;
 use crate::util;
-use crate::{AddOptions, UuidOptions};
+use crate::{AddOptions, ListOptions, UuidOptions};
 use chrono::{DateTime, Utc};
 use rusqlite::Result;
 use uuid::Uuid;
@@ -67,12 +67,27 @@ impl TodoController {
         Ok(())
     }
 
-    pub fn list_todos(&self) -> Result<Vec<Todo>> {
-        // TODO(zztkm): 条件による絞り込みを実装する
-        let mut stmt = self.conn.prepare(
-            "SELECT id, created_at, updated_at, done, title, start_date, start_time, description, url, uuid
-        FROM todos WHERE done = 0 ORDER BY created_at asc",
-        )?;
+    pub fn list_todos(&self, options: &ListOptions) -> Result<Vec<Todo>> {
+        let query = format!(
+            "
+            SELECT
+                id
+                ,created_at
+                , updated_at
+                , done
+                , title
+                , start_date
+                , start_time
+                , description
+                , url
+                , uuid
+            FROM todos
+            WHERE done = {}
+            ORDER BY created_at asc
+        ",
+            options.status
+        );
+        let mut stmt = self.conn.prepare(&query)?;
         let rows = stmt.query_map([], |row| {
             // Index 1, 2 は String として row.get し、Local.datetime_from_str で DateTime に変換する
             // Index 5,6 は それぞれ開始日時と時刻を表し Option<String> として row.get し、Option<DateTime> に変換する

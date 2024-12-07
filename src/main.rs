@@ -29,26 +29,29 @@ impl Cli {
                 Ok(_) => println!("Todo marked as undone."),
                 Err(e) => eprintln!("Failed to mark a todo as undone: {}", e),
             },
-            Commands::List(_) => {
-                let todos = controller.list_todos().unwrap();
-                if todos.is_empty() {
-                    println!("No todos found.");
-                    return;
-                }
-                for todo in todos {
-                    let done = if todo.done == 0 { " " } else { "x" };
-                    println!(
-                        "[{}] {}, start: {}, url: {}, uuid: {}",
-                        done,
-                        todo.title,
-                        todo.start_date
-                            .map(|d| d.format("%Y-%m-%d").to_string())
-                            .unwrap_or("".to_string()),
-                        todo.url.unwrap_or("".to_string()),
-                        todo.uuid
-                    );
-                }
-            }
+            Commands::List(args) => self.list_todos(controller, args),
+            Commands::L(args) => self.list_todos(controller, args),
+        }
+    }
+
+    fn list_todos(&self, controller: TodoController, args: &todo::ListOptions) {
+        let todos = controller.list_todos(args).unwrap();
+        if todos.is_empty() {
+            println!("No todos found.");
+            return;
+        }
+        for todo in todos {
+            let done = if todo.done == 0 { " " } else { "x" };
+            println!(
+                "[{}] {}, start: {}, url: {}, uuid: {}",
+                done,
+                todo.title,
+                todo.start_date
+                    .map(|d| d.format("%Y-%m-%d").to_string())
+                    .unwrap_or("".to_string()),
+                todo.url.unwrap_or("".to_string()),
+                todo.uuid
+            );
         }
     }
 }
@@ -73,6 +76,9 @@ pub enum Commands {
     ///
     /// This command lists all todos.
     List(todo::ListOptions),
+
+    /// List todo (short version)
+    L(todo::ListOptions),
 }
 
 fn main() {

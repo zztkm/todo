@@ -33,27 +33,12 @@ pub struct AddOptions {
     pub url: Option<String>,
 }
 
-#[derive(Args)]
+#[derive(Debug, clap::Parser)]
 pub struct ListOptions {
-    /// Filter todos by status.
-    #[arg(short, long)]
-    pub filter: Option<String>,
-
-    /// Sort todos by status.
-    #[arg(short, long)]
-    pub sort: Option<String>,
-
-    /// Reverse the order of the todos.
-    #[arg(short, long)]
-    pub reverse: bool,
-
-    /// Limit the number of todos.
-    #[arg(short, long)]
-    pub limit: Option<usize>,
-
-    /// Output format.
-    #[arg(short, long)]
-    pub output: Option<String>,
+    /// 完了 / 未完了どちらのタスクを表示するか
+    /// 0 = 未完了、1 = 完了
+    #[arg(short = 's', long, default_value = "0")]
+    pub status: String,
 }
 
 #[derive(Args)]
