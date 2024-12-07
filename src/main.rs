@@ -15,22 +15,22 @@ pub struct Cli {
 }
 
 impl Cli {
-    pub fn execute(&self, contoroller: TodoController) {
+    pub fn execute(&self, controller: TodoController) {
         match &self.command {
-            Commands::Add(args) => match contoroller.add_todo(args) {
+            Commands::Add(args) => match controller.add_todo(args) {
                 Ok(_) => println!("Todo created successfully."),
                 Err(e) => eprintln!("Failed to create a todo: {}", e),
             },
-            Commands::Done(args) => match contoroller.done(args) {
+            Commands::Done(args) => match controller.done(args) {
                 Ok(_) => println!("Todo marked as done."),
                 Err(e) => eprintln!("Failed to mark a todo as done: {}", e),
             },
-            Commands::Undone(args) => match contoroller.undone(args) {
+            Commands::Undone(args) => match controller.undone(args) {
                 Ok(_) => println!("Todo marked as undone."),
                 Err(e) => eprintln!("Failed to mark a todo as undone: {}", e),
             },
             Commands::List(_) => {
-                let todos = contoroller.list_todos().unwrap();
+                let todos = controller.list_todos().unwrap();
                 if todos.is_empty() {
                     println!("No todos found.");
                     return;
