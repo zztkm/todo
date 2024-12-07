@@ -46,3 +46,35 @@ pub struct UuidOptions {
     /// ID of the todo to mark as done.
     pub uuid: String,
 }
+
+#[derive(Debug, clap::Parser)]
+pub struct EditOptions {
+    /// ID of the todo to mark as done.
+    pub uuid: String,
+
+    /// Title
+    #[arg(short = 't', long)]
+    pub title: Option<String>,
+
+    /// Start date of the todo (optional).
+    ///
+    /// Example: "2024-12-31"
+    #[arg(long)]
+    // description と頭文字が被っているため、short オプションを指定しない
+    pub date: Option<String>,
+
+    /// Start time of the todo (optional).
+    ///
+    /// Example: "14:30:00"
+    // TODO(zztkm): time は hh:mm もサポートする
+    #[arg(long)]
+    pub time: Option<String>,
+
+    /// Description of the todo (optional).
+    #[arg(short, long)]
+    pub description: Option<String>,
+
+    /// URL of the todo (optional).
+    #[arg(short, long)]
+    pub url: Option<String>,
+}

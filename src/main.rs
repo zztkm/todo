@@ -31,6 +31,10 @@ impl Cli {
             },
             Commands::List(args) => self.list_todos(controller, args),
             Commands::L(args) => self.list_todos(controller, args),
+            Commands::Edit(args) => match controller.edit(args) {
+                Ok(_) => println!("Todo edited successfully."),
+                Err(e) => eprintln!("Failed to edit a todo: {}", e),
+            },
         }
     }
 
@@ -79,6 +83,9 @@ pub enum Commands {
 
     /// List todo (short version)
     L(todo::ListOptions),
+
+    /// Edit todo.
+    Edit(todo::EditOptions),
 }
 
 fn main() {
