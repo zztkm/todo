@@ -17,10 +17,8 @@ pub struct Cli {
 impl Cli {
     pub fn execute(&self, controller: TodoController) {
         match &self.command {
-            Commands::Add(args) => match controller.add_todo(args) {
-                Ok(_) => println!("Todo created successfully."),
-                Err(e) => eprintln!("Failed to create a todo: {}", e),
-            },
+            Commands::Add(args) => self.add(controller, args),
+            Commands::A(args) => self.add(controller, args),
             Commands::Done(args) => match controller.done(args) {
                 Ok(_) => println!("Todo marked as done."),
                 Err(e) => eprintln!("Failed to mark a todo as done: {}", e),
@@ -31,10 +29,8 @@ impl Cli {
             },
             Commands::List(args) => self.list_todos(controller, args),
             Commands::L(args) => self.list_todos(controller, args),
-            Commands::Edit(args) => match controller.edit(args) {
-                Ok(_) => println!("Todo edited successfully."),
-                Err(e) => eprintln!("Failed to edit a todo: {}", e),
-            },
+            Commands::Edit(args) => self.edit(controller, args),
+            Commands::E(args) => self.edit(controller, args),
         }
     }
 
@@ -58,6 +54,20 @@ impl Cli {
             );
         }
     }
+
+    fn add(&self, controller: TodoController, args: &todo::AddOptions) {
+        match controller.add_todo(args) {
+            Ok(_) => println!("Todo created successfully."),
+            Err(e) => eprintln!("Failed to create a todo: {}", e),
+        }
+    }
+
+    fn edit(&self, controller: TodoController, args: &todo::EditOptions) {
+        match controller.edit(args) {
+            Ok(_) => println!("Todo edited successfully."),
+            Err(e) => eprintln!("Failed to edit a todo: {}", e),
+        }
+    }
 }
 
 #[derive(Subcommand)]
@@ -69,6 +79,9 @@ pub enum Commands {
     /// Example:
     /// $ todo create "Buy milk" --description "Buy 2 milk" --due-date "2024-12-31"
     Add(todo::AddOptions),
+
+    /// Add todo (short version)
+    A(todo::AddOptions),
 
     /// Mark a todo as done.
     Done(todo::UuidOptions),
@@ -86,6 +99,9 @@ pub enum Commands {
 
     /// Edit todo.
     Edit(todo::EditOptions),
+
+    /// Edit todo (short version)
+    E(todo::EditOptions),
 }
 
 fn main() {
